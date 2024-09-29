@@ -1,43 +1,46 @@
 package kaspi
 
 import (
-	"context"
 	"sync"
 
 	kma "github.com/abdymazhit/kaspi-merchant-api"
 )
 
-func RefhreshOrders(api kma.API) error {
-	req := getOrderReq()
+func RefhreshOrders(req kma.GetOrdersRequest, api kma.API) error {
+	pages, err := handlePage(req, api)
 
-	resp, err := api.GetOrders(context.Background(), req)
-	if err != nil {
-		return err
-	}
-
-	count := resp.Meta.PageCount
-
+	errs := []error{}
 	var wg sync.WaitGroup
-	for i := 0; i < count; i++ {
-		if i == 0 {
-			continue
-		}
-		req.PageNumber = i
 
+	for i := 1; i < pages; i++ {
 		wg.Add(1)
-		go func(req kma.GetOrdersRequest) {
+		go func() {
 			defer wg.Done()
-		}(req)
+			req.PageNumber = i
+			_, err = handlePage(req, api)
+			errs = append(errs, err)
+		}()
 	}
 
 	wg.Wait()
 
+	for _, err := range errs {
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
-func getOrderReq() kma.GetOrdersRequest {
+func handlePage(req kma.GetOrdersRequest, api kma.API) (int, error) {
+	return 1, nil
+}
+
+func GetOrderReq() kma.GetOrdersRequest {
 	return kma.GetOrdersRequest{}
 }
 
-func parseOrder(resp kma.OrdersResponse) {
+func saveOrders(resp *kma.OrdersResponse) error {
+	return nil
 }

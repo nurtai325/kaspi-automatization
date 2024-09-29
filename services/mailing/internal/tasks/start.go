@@ -10,7 +10,8 @@ type stopTasks func()
 func Start(conf models.Config) (stopTasks, error) {
 	scheduler := scheduling.New()
 
-	tasks := []*scheduling.Task{orderTask(conf.KASPI_TOKEN)}
+	// tasks := []*scheduling.Task{orderTask(conf.KASPI_TOKEN)}
+	tasks := []*scheduling.Task{}
 	for _, task := range tasks {
 		_, err := scheduler.Add(task)
 		if err != nil {

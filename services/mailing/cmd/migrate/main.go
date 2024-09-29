@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/nurtai325/kaspi/mailing/internal/db"
+)
 
 func main() {
-	fmt.Println("yes")
+	db.Migrate()
 }
