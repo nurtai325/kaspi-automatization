@@ -21,7 +21,3 @@ func Start(conf models.Config) (stopTasks, error) {
 
 	return scheduler.Stop, nil
 }
-
-func errFunc(err error) {
-	panic(err)
-}

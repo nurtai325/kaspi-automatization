@@ -6,7 +6,7 @@ import (
 
 	kma "github.com/abdymazhit/kaspi-merchant-api"
 	"github.com/nurtai325/kaspi/mailing/internal/config"
-	"github.com/nurtai325/kaspi/mailing/internal/external/kaspi"
+	"github.com/nurtai325/kaspi/mailing/internal/external/kaspi/order"
 	"github.com/nurtai325/kaspi/mailing/internal/tasks"
 )
 
@@ -29,8 +29,8 @@ func main() {
 	}
 
 	api := kma.New(conf.KASPI_TOKEN)
-	req := kaspi.GetOrderReq()
-	err = kaspi.RefhreshOrders(req, api)
+	req := order.GetOrderReq()
+	err = order.RefhreshOrders(req, api)
 	if err != nil {
 		panic(err)
 	}

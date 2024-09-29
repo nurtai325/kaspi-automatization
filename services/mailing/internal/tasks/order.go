@@ -5,7 +5,7 @@ import (
 
 	kma "github.com/abdymazhit/kaspi-merchant-api"
 	schedule "github.com/madflojo/tasks"
-	"github.com/nurtai325/kaspi/mailing/internal/external/kaspi"
+	"github.com/nurtai325/kaspi/mailing/internal/external/kaspi/order"
 )
 
 func orderTask(token string) *schedule.Task {
@@ -13,8 +13,8 @@ func orderTask(token string) *schedule.Task {
 		Interval: 3 * time.Minute,
 		TaskFunc: func() error {
 			api := kma.New(token)
-			req := kaspi.GetOrderReq()
-			return kaspi.RefhreshOrders(req, api)
+			req := order.GetOrderReq()
+			return order.RefhreshOrders(req, api)
 		},
 		ErrFunc: errFunc,
 	}

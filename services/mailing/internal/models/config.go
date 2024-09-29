@@ -7,5 +7,5 @@ type Config struct {
 	DB_PORT     string `env:"DB_PORT"`
 	DB_NAME     string `env:"DB_NAME"`
 	KASPI_TOKEN string `env:"KASPI_TOKEN"`
-	WORK_DIR    string
+    WORK_DIR    string
 }
