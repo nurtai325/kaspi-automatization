@@ -1,6 +1,6 @@
 package queue
 
-type Order interface {
+type OrderQueue interface {
 	Add(id string) error
 	Remove(id string) error
 	Get() ([]string, error)

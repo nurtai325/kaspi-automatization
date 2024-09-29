@@ -1,5 +1,7 @@
 package queue
 
-func NewOrder() Order {
+func Order() OrderQueue {
 	return nil
 }
+
+

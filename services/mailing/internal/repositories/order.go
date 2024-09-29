@@ -1,7 +1,9 @@
 package repositories
 
-import "database/sql"
-
-func NewOrder(db *sql.DB) Order {
+func Order() OrderRepository {
 	return nil
+}
+
+type orderRepository struct {
+
 }

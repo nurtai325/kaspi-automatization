@@ -2,7 +2,7 @@ package repositories
 
 import "github.com/nurtai325/kaspi/mailing/internal/models"
 
-type Order interface {
+type OrderRepository interface {
 	GetById(id string) (models.Order, error)
 	Exists(id string) (bool, error)
 	Insert(order models.Order) error

@@ -46,7 +46,7 @@ func handlePage(req kma.GetOrdersRequest, api kma.API) (int, error) {
 		return 0, err
 	}
 
-	err = saveOrders(resp, nil)
+	err = saveOrders(resp, repositories.Order())
 	if err != nil {
 		return 0, err
 	}
@@ -60,7 +60,7 @@ func GetOrderReq() kma.GetOrdersRequest {
 	}
 }
 
-func saveOrders(resp *kma.OrdersResponse, repo repositories.Order) error {
+func saveOrders(resp *kma.OrdersResponse, repo repositories.OrderRepository) error {
 	errs := make(chan error)
 	fmt.Print(resp, "\n")
 
@@ -72,7 +72,7 @@ func saveOrders(resp *kma.OrdersResponse, repo repositories.Order) error {
 				return
 			}
 
-			orderQueue := queue.NewOrder()
+			orderQueue := queue.Order()
 			if orderQueue.Add(order.Id) != nil {
 				errs <- err
 				return
