@@ -10,10 +10,10 @@ import (
 
 func orderTask(token string) *schedule.Task {
 	return &schedule.Task{
-		Interval: 3 * time.Minute,
+		Interval: time.Duration(order.IntervalMinutes) * time.Minute,
 		TaskFunc: func() error {
 			api := kma.New(token)
-			req := order.GetOrderReq()
+			req := order.GetOrderReq(kma.OrdersStateKaspiDelivery)
 			return order.RefhreshOrders(req, api)
 		},
 		ErrFunc: errFunc,

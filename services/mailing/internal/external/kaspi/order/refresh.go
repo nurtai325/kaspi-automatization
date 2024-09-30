@@ -6,12 +6,7 @@ import (
 
 	kma "github.com/abdymazhit/kaspi-merchant-api"
 	"github.com/nurtai325/kaspi/mailing/internal/models"
-	"github.com/nurtai325/kaspi/mailing/internal/queue"
 	"github.com/nurtai325/kaspi/mailing/internal/repositories"
-)
-
-const (
-	pageSize = 10
 )
 
 func RefhreshOrders(req kma.GetOrdersRequest, api kma.API) error {
@@ -20,7 +15,7 @@ func RefhreshOrders(req kma.GetOrdersRequest, api kma.API) error {
 		return err
 	}
 
-	errs := make(chan error)
+	errs := make(chan error, pages)
 
 	for i := 1; i < pages; i++ {
 		go func() {
@@ -54,26 +49,15 @@ func handlePage(req kma.GetOrdersRequest, api kma.API) (int, error) {
 	return resp.Meta.PageCount, nil
 }
 
-func GetOrderReq() kma.GetOrdersRequest {
-	return kma.GetOrdersRequest{
-		PageSize: pageSize,
-	}
-}
-
 func saveOrders(resp *kma.OrdersResponse, repo repositories.OrderRepository) error {
+	count := len(resp.Data)
+	fmt.Print(resp, "\n", count)
 	errs := make(chan error)
-	fmt.Print(resp, "\n")
 
-	for i := 0; i < resp.Meta.TotalCount; i++ {
+	for i := 0; i < count; i++ {
 		go func(order models.Order) {
 			err := repo.Insert(order)
 			if err != nil {
-				errs <- err
-				return
-			}
-
-			orderQueue := queue.Order()
-			if orderQueue.Add(order.Id) != nil {
 				errs <- err
 				return
 			}
@@ -83,7 +67,7 @@ func saveOrders(resp *kma.OrdersResponse, repo repositories.OrderRepository) err
 		})
 	}
 
-	for i := 0; i < resp.Meta.TotalCount; i++ {
+	for i := 0; i < count; i++ {
 		err := <-errs
 		if err != nil {
 			return err

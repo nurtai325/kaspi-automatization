@@ -5,6 +5,6 @@ tasks:
     cmds:
       - go build -v -i cmd/main.go
 
-  assets:
+  migrate:
     cmds:
       - esbuild --bundle --minify css/index.css > public/bundle.css

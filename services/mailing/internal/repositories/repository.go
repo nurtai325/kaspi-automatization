@@ -8,3 +8,7 @@ type OrderRepository interface {
 	Insert(order models.Order) error
 	Complete(id string) error
 }
+
+type OrderQueueRepository interface {
+	Add(id string) error
+}
