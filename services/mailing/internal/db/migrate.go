@@ -10,7 +10,11 @@ type Migrator interface {
 }
 
 func Migrate() error {
-	migList := []Migrator{Order{}}
+	migList := []Migrator{
+		Order{},
+		Client{},
+		User{},
+	}
 
 	for _, migrator := range migList {
 		fmt.Printf("running migration: %s\n", migrator.Name())

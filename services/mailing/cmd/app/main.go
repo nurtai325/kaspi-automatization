@@ -8,9 +8,10 @@ import (
 
 	kma "github.com/abdymazhit/kaspi-merchant-api"
 	_ "github.com/lib/pq"
+	scheduling "github.com/madflojo/tasks"
 	"github.com/nurtai325/kaspi/mailing/internal/config"
 	"github.com/nurtai325/kaspi/mailing/internal/db"
-	"github.com/nurtai325/kaspi/mailing/internal/external/kaspi/order"
+	"github.com/nurtai325/kaspi/mailing/internal/order"
 	"github.com/nurtai325/kaspi/mailing/internal/tasks"
 )
 
@@ -24,7 +25,8 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	stop, err := tasks.Start(conf)
+	jobs := []*scheduling.Task{tasks.OrdersTask(conf.KASPI_TOKEN)}
+	stop, err := tasks.Start(conf, jobs)
 	defer stop()
 	if err != nil {
 		panic(err)

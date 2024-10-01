@@ -33,7 +33,7 @@ func GetOrderReq(state kma.OrdersState) kma.GetOrdersRequest {
 				DeliveryType      kma.OrdersDeliveryType
 				SignatureRequired bool
 			}{
-				CreationDateGe: time.Now().AddDate(0, 0, -IntervalMinutes),
+				CreationDateGe: time.Now().AddDate(0, 0, -IntervalMinutes*2),
 				CreationDateLe: time.Now(),
 				State:          state,
 			},
