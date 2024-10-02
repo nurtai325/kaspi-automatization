@@ -7,7 +7,5 @@ type OrderRepository interface {
 }
 
 type OrderQueueRepository interface {
-	Add(id string) error
-	Remove(id string) error
-	Get(id string) error
+	Add(id, phone string) error
 }

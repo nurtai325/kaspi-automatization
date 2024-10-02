@@ -11,25 +11,16 @@ import (
 func saveOrders(
 	resp *kma.OrdersResponse,
 	repo repositories.OrderRepository,
+	queue repositories.OrderQueueRepository,
 ) error {
 	count := len(resp.Data)
 	errs := make(chan error)
-
-	save := func(order models.Order, errs chan error) {
-		err := repo.Insert(order)
-		if err != nil {
-			if !errors.Is(err, repositories.ErrRecordIsPresent) {
-				errs <- err
-			}
-			return
-		}
-	}
 
 	for i := 0; i < count; i++ {
 		go save(models.Order{
 			Id:        resp.Data[i].Attributes.Code,
 			Completed: false,
-		}, errs)
+		}, errs, repo, queue)
 	}
 
 	for i := 0; i < count; i++ {
@@ -40,4 +31,32 @@ func saveOrders(
 	}
 
 	return nil
+}
+
+func save(
+	order models.Order,
+	errs chan error,
+	repo repositories.OrderRepository,
+	queue repositories.OrderQueueRepository,
+) {
+	err := repo.Insert(order)
+	if err == nil {
+		err = queue.Add(order.Id, order.Phone)
+		if err != nil {
+			errs <- err
+			return
+		}
+		return
+	}
+
+	if errors.Is(err, repositories.ErrRecordIsPresent) {
+		err = queue.Add(order.Id, order.Phone)
+		if err != nil {
+			errs <- err
+			return
+		}
+		return
+	}
+	errs <- err
+	return
 }

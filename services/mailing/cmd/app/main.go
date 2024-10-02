@@ -1,17 +1,14 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
 	"sync"
 
-	kma "github.com/abdymazhit/kaspi-merchant-api"
 	_ "github.com/lib/pq"
 	scheduling "github.com/madflojo/tasks"
 	"github.com/nurtai325/kaspi/mailing/internal/config"
 	"github.com/nurtai325/kaspi/mailing/internal/db"
-	"github.com/nurtai325/kaspi/mailing/internal/order"
+	"github.com/nurtai325/kaspi/mailing/internal/models"
+	"github.com/nurtai325/kaspi/mailing/internal/repositories"
 	"github.com/nurtai325/kaspi/mailing/internal/tasks"
 )
 
@@ -38,18 +35,12 @@ func main() {
 		panic(err)
 	}
 
-	api := kma.New(conf.KASPI_TOKEN)
-	req := order.GetOrderReq(kma.OrdersStateKaspiDelivery)
-	resp, err := api.GetOrders(context.Background(), req)
-	if err != nil {
-		panic(err)
-	}
-
-	orders, err := json.Marshal(resp)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%+v\n", string(orders))
+	repo := repositories.Order()
+	err = repo.Insert(models.Order{
+		Id:        "yessss",
+		Completed: true,
+	})
+	panic(err)
 	wg.Done()
 
 	wg.Wait()

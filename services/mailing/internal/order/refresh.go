@@ -11,8 +11,9 @@ func RefhreshOrders(
 	req kma.GetOrdersRequest,
 	api kma.API,
 	repo repositories.OrderRepository,
+	queue repositories.OrderQueueRepository,
 ) error {
-	pages, err := handleOrderPage(req, api, repo)
+	pages, err := handleOrderPage(req, api, repo, queue)
 	if err != nil {
 		return err
 	}
@@ -22,7 +23,7 @@ func RefhreshOrders(
 	for i := 1; i < pages; i++ {
 		go func(errs chan error) {
 			req.PageNumber = i
-			_, err = handleOrderPage(req, api, repo)
+			_, err = handleOrderPage(req, api, repo, queue)
 			errs <- err
 		}(errs)
 	}
@@ -41,17 +42,17 @@ func handleOrderPage(
 	req kma.GetOrdersRequest,
 	api kma.API,
 	repo repositories.OrderRepository,
+	queue repositories.OrderQueueRepository,
 ) (int, error) {
 	resp, err := api.GetOrders(context.Background(), req)
 	if err != nil {
 		return 0, err
 	}
 
-	err = saveOrders(resp, repo)
+	err = saveOrders(resp, repo, queue)
 	if err != nil {
 		return 0, err
 	}
 
 	return resp.Meta.PageCount, nil
 }
-

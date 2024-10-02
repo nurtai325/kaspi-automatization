@@ -24,11 +24,29 @@ type orderRepository struct {
 }
 
 func (o *orderRepository) Insert(order models.Order) error {
-	_, err := o.conn.Exec(
-		"INSERT INTO orders(id, completed) VALUES($1, $2)",
+	row := o.conn.QueryRow(
+		"SELECT id, completed from orders where id = $1;",
 		order.Id,
-		order.Completed,
 	)
+	if row.Err() != nil {
+		return nil
+	}
+
+	var newOrder models.Order
+	err := row.Scan(&newOrder.Id, &newOrder.Completed)
+	if err == nil {
+		return ErrRecordIsPresent
+	}
+
+	if errors.Is(err, sql.ErrNoRows) {
+		_, err = o.conn.Exec(
+			"INSERT INTO orders(id, completed) VALUES($1, $2);",
+			order.Id,
+			order.Completed,
+		)
+
+		return err
+	}
 
 	return err
 }

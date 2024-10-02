@@ -16,7 +16,8 @@ func OrdersTask(token string) *schedule.Task {
 			api := kma.New(token)
 			req := order.GetOrderReq(kma.OrdersStateKaspiDelivery)
 			repo := repositories.Order()
-			return order.RefhreshOrders(req, api, repo)
+			queue := repositories.OrderQueue()
+			return order.RefhreshOrders(req, api, repo, queue)
 		},
 		ErrFunc: errFunc,
 	}
