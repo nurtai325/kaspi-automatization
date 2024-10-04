@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	pageSize        int = 15
+	pageSize        int = 5
 	IntervalMinutes int = 3
 )
 
@@ -33,7 +33,7 @@ func GetOrderReq(state kma.OrdersState) kma.GetOrdersRequest {
 				DeliveryType      kma.OrdersDeliveryType
 				SignatureRequired bool
 			}{
-				CreationDateGe: time.Now().AddDate(0, 0, -IntervalMinutes*2),
+				CreationDateGe: time.Now().Add(-(time.Duration(IntervalMinutes) * time.Minute)),
 				CreationDateLe: time.Now(),
 				State:          state,
 			},

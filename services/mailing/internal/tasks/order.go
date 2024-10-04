@@ -9,7 +9,7 @@ import (
 	"github.com/nurtai325/kaspi/mailing/internal/repositories"
 )
 
-func OrdersTask(token string) *schedule.Task {
+func NewOrders(token string) *schedule.Task {
 	return &schedule.Task{
 		Interval: time.Duration(order.IntervalMinutes) * time.Minute,
 		TaskFunc: func() error {

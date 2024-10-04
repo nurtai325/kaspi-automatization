@@ -1,12 +1,12 @@
 package db
 
-type User struct {
+type Customer struct {
 }
 
-func (c User) Migrate() error {
+func (c Customer) Migrate() error {
     conn := GetDBConnection()
     _, err := conn.Exec(`
-        CREATE TABLE IF NOT EXISTS users (
+        CREATE TABLE IF NOT EXISTS customers (
             id SERIAL PRIMARY KEY, 
             name VARCHAR(50) NOT NULL,
             phone VARCHAR(15) NOT NULL
@@ -15,6 +15,6 @@ func (c User) Migrate() error {
     return err
 }
 
-func (c User) Name() string {
-    return "create_users_table"
+func (c Customer) Name() string {
+    return "create_customers_table"
 }

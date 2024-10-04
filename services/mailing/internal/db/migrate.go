@@ -13,7 +13,7 @@ func Migrate() error {
 	migList := []Migrator{
 		Order{},
 		Client{},
-		User{},
+		Customer{},
 	}
 
 	for _, migrator := range migList {

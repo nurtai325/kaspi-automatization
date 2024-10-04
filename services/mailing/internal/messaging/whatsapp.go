@@ -1,5 +1,6 @@
 package messaging
 
+// TODO: manage storage and logs creation
 type whatsapp struct {
 }
 

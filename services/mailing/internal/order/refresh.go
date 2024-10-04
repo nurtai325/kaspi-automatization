@@ -49,7 +49,7 @@ func handleOrderPage(
 		return 0, err
 	}
 
-	err = saveOrders(resp, repo, queue)
+	err = saveOrders(resp, repo, queue, api)
 	if err != nil {
 		return 0, err
 	}

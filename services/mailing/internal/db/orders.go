@@ -8,7 +8,11 @@ func (o Order) Migrate() error {
     _, err := conn.Exec(`
         CREATE TABLE IF NOT EXISTS orders (
             id VARCHAR(9) PRIMARY KEY, 
-            completed BOOLEAN NOT NULL
+            completed BOOLEAN NOT NULL,
+            product_code VARCHAR(9) NOT NULL,
+            sum BIGINT NOT NULL,
+            customer VARCHAR(70) NOT NULL,
+            entries TEXT NOT NULL
         );
         `)
     return err
