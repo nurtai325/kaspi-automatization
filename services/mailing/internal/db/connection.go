@@ -19,7 +19,7 @@ type close func() error
 func Connect(conf models.Config) (close, error) {
 	port, err := strconv.Atoi(conf.DB_PORT)
 	if err != nil {
-		return func() error { return nil }, err
+		return nil, err
 	}
 
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
@@ -28,18 +28,18 @@ func Connect(conf models.Config) (close, error) {
 
 	pgDB, err := sql.Open(driver, psqlInfo)
 	if err != nil {
-		return func() error { return nil }, err
+		return nil, err
 	}
 
 	err = pgDB.Ping()
 	if err != nil {
-		return func() error { return nil }, err
+		return nil, err
 	}
 
 	db = pgDB
-	return pgDB.Close, nil
+	return db.Close, nil
 }
 
-func GetDBConnection() *sql.DB {
+func New() *sql.DB {
 	return db
 }

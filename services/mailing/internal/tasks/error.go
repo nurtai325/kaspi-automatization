@@ -1,5 +1,7 @@
 package tasks
 
+import "log"
+
 func errFunc(err error) {
-	panic(err)
+	log.Println(err)
 }

@@ -1,9 +1,13 @@
 package messaging
 
+import (
+	"github.com/nurtai325/kaspi/mailing/internal/models"
+)
+
 type Messenger interface {
-	Message(phone, text string) error
+	Message(message models.Message) error
 }
 
-func New() Messenger {
+func New(clientId uint) Messenger {
 	return &whatsapp{}
 }

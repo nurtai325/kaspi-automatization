@@ -6,6 +6,7 @@ import (
 
 	kma "github.com/abdymazhit/kaspi-merchant-api"
 	"github.com/nurtai325/kaspi/mailing/internal/messaging"
+	"github.com/nurtai325/kaspi/mailing/internal/models"
 	"github.com/nurtai325/kaspi/mailing/internal/repositories"
 )
 
@@ -16,19 +17,22 @@ var (
 func CheckCompleted(
 	repo repositories.OrderRepository,
 	queue repositories.OrderQueueRepository,
-	api kma.API,
+	client models.Client,
 ) error {
-	return queue.Range(func(id, productCode string) error {
-		return completeOrder(id, productCode, repo, queue, api)
+	return queue.Range(func(id string, order models.QueuedOrder) error {
+		api := kma.New(order.Token)
+		return completeOrder(id, order.ProductCode, order.OrderPhone, repo, queue, api, client)
 	})
 }
 
 func completeOrder(
 	id string,
 	productCode string,
+	phone string,
 	repo repositories.OrderRepository,
 	queue repositories.OrderQueueRepository,
 	api kma.API,
+	client models.Client,
 ) error {
 	orderResp, err := api.GetOrderByCode(context.Background(), id)
 	if err != nil {
@@ -55,15 +59,18 @@ func completeOrder(
 		return err
 	}
 
-	messenger := messaging.New()
-	phone := order.Attributes.Customer.CellPhone
+	messenger := messaging.New(client.Id)
 	message := messaging.CompletedOrderMessage(
 		order.Attributes.Customer.Name,
 		order.Attributes.Code,
 		productCode,
 	)
 
-	err = messenger.Message(phone, message)
+	err = messenger.Message(models.Message{
+		Sender:   client.Phone,
+		Receiver: phone,
+		Text:     message,
+	})
 	if err != nil {
 		return err
 	}

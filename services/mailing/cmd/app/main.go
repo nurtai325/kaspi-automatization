@@ -1,56 +1,59 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"sync"
+	"log"
+	"net/http"
 
-	kaspi_merchant "github.com/abdymazhit/kaspi-merchant-api"
 	_ "github.com/lib/pq"
 	scheduling "github.com/madflojo/tasks"
 	"github.com/nurtai325/kaspi/mailing/internal/config"
 	"github.com/nurtai325/kaspi/mailing/internal/db"
-	"github.com/nurtai325/kaspi/mailing/internal/order"
+	"github.com/nurtai325/kaspi/mailing/internal/handlers"
 	"github.com/nurtai325/kaspi/mailing/internal/tasks"
 )
 
-// TODO: use ctx.Context instead of buffered channels
-// TODO: adding logging
-// TODO: finish clients api
 func main() {
+	log.SetFlags(log.LstdFlags | log.Ltime | log.Lshortfile)
+
 	err := config.Load()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	conf, err := config.New()
-
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	jobs := []*scheduling.Task{tasks.NewOrders(conf.KASPI_TOKEN)}
-	stop, err := tasks.Start(conf, jobs)
-	defer stop()
-	if err != nil {
-		panic(err)
-	}
+	conf := config.New()
 
 	closeDB, err := db.Connect(conf)
 	defer closeDB()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	api := kaspi_merchant.New(conf.KASPI_TOKEN)
-	resp, err := api.GetOrders(context.Background(), order.GetOrderReq(kaspi_merchant.OrdersStateArchive))
+	jobs := []*scheduling.Task{
+		tasks.NewOrders(),
+		tasks.CompletedOrders(),
+	}
+	stop, err := tasks.Start(conf, jobs)
+	defer stop()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	js, _ := json.Marshal(resp)
-	fmt.Println(string(js))
+	err = handlers.ParseViews()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	wg.Done()
+	http.HandleFunc("/", handlers.HandleClientsView)
+	http.HandleFunc("/add/", handlers.HandleAddClientView)
+	http.HandleFunc("/add/client", handlers.HandleAddClient)
+	http.HandleFunc("/extend/client", handlers.HandleExtendClientDate)
+	http.HandleFunc("/qrcode", handlers.HandleConnectQrcode)
 
-	wg.Wait()
+	fs := http.FileServer(http.Dir("./assets"))
+	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
+
+	log.Println("starting web server")
+	err = http.ListenAndServe(":80", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

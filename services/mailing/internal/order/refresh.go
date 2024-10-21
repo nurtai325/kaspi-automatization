@@ -4,6 +4,7 @@ import (
 	"context"
 
 	kma "github.com/abdymazhit/kaspi-merchant-api"
+	"github.com/nurtai325/kaspi/mailing/internal/models"
 	"github.com/nurtai325/kaspi/mailing/internal/repositories"
 )
 
@@ -12,8 +13,9 @@ func RefhreshOrders(
 	api kma.API,
 	repo repositories.OrderRepository,
 	queue repositories.OrderQueueRepository,
+	client models.Client,
 ) error {
-	pages, err := handleOrderPage(req, api, repo, queue)
+	pages, err := handleOrderPage(req, api, repo, queue, client)
 	if err != nil {
 		return err
 	}
@@ -23,7 +25,7 @@ func RefhreshOrders(
 	for i := 1; i < pages; i++ {
 		go func(errs chan error) {
 			req.PageNumber = i
-			_, err = handleOrderPage(req, api, repo, queue)
+			_, err = handleOrderPage(req, api, repo, queue, client)
 			errs <- err
 		}(errs)
 	}
@@ -43,13 +45,14 @@ func handleOrderPage(
 	api kma.API,
 	repo repositories.OrderRepository,
 	queue repositories.OrderQueueRepository,
+	client models.Client,
 ) (int, error) {
 	resp, err := api.GetOrders(context.Background(), req)
 	if err != nil {
 		return 0, err
 	}
 
-	err = saveOrders(resp, repo, queue, api)
+	err = saveOrders(resp, repo, queue, api, client)
 	if err != nil {
 		return 0, err
 	}

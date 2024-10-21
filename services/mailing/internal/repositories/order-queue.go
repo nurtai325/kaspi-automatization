@@ -3,11 +3,14 @@ package repositories
 import (
 	"errors"
 	"sync"
+
+	"github.com/nurtai325/kaspi/mailing/internal/models"
 )
 
 var (
 	ErrNotFound               = errors.New("record is already present in the database")
 	ErrIncorrectParameterType = errors.New("parameters passed to function aren't correct")
+	ErrOrderQueueValue        = errors.New(`value in the orders queue is not of format "productCode_token"`)
 	orderQueue                = sync.Map{}
 )
 
@@ -18,8 +21,8 @@ func OrderQueue() OrderQueueRepository {
 type orderQueueRepository struct {
 }
 
-func (o *orderQueueRepository) Add(id, phone string) error {
-	orderQueue.Store(id, phone)
+func (o *orderQueueRepository) Add(id string, order models.QueuedOrder) error {
+	orderQueue.Store(id, order)
 	return nil
 }
 
@@ -28,7 +31,7 @@ func (o *orderQueueRepository) Remove(id string) error {
 	return nil
 }
 
-func (o *orderQueueRepository) Range(f func(k, v string) error) error {
+func (o *orderQueueRepository) Range(f func(id string, order models.QueuedOrder) error) error {
 	var rangeErr error
 
 	orderQueue.Range(func(k, v any) bool {
@@ -37,7 +40,7 @@ func (o *orderQueueRepository) Range(f func(k, v string) error) error {
 			return false
 		}
 
-		value, ok := k.(string)
+		value, ok := v.(models.QueuedOrder)
 		if !ok {
 			rangeErr = ErrIncorrectParameterType
 			return false

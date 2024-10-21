@@ -8,6 +8,7 @@ type Order struct {
 	Sum         int64  `json:"sum"`
 	ProductCode string `json:"product_code"`
 	Entries     string `json:"entries"`
+	KaspiId     string `json:"kaspi_id"`
 }
 
 type Entry struct {
@@ -17,4 +18,12 @@ type Entry struct {
 	ProductCode  string `json:"product_code"`
 	ProductName  string `json:"product_name"`
 	DeliveryCost int64  `json:"delivery_cost"`
+}
+
+type QueuedOrder struct {
+	ClientId    uint   `json:"client_id"`
+	Token       string `json:"token"`
+	ProductCode string `json:"product_code"`
+	ClientPhone string `json:"client_phone"`
+	OrderPhone  string `json:"order_phone"`
 }

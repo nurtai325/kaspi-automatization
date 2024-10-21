@@ -1,24 +1,26 @@
 package db
 
 import (
+	"database/sql"
 	"fmt"
 )
 
 type Migrator interface {
-	Migrate() error
+	Migrate(*sql.DB) error
 	Name() string
 }
 
 func Migrate() error {
 	migList := []Migrator{
-		Order{},
-		Client{},
-		Customer{},
+		&Order{},
+		&Client{},
+		&Customer{},
 	}
 
+	db := New()
 	for _, migrator := range migList {
 		fmt.Printf("running migration: %s\n", migrator.Name())
-		err := migrator.Migrate()
+		err := migrator.Migrate(db)
 		if err != nil {
 			fmt.Printf("error running migration: %s\n", migrator.Name())
 			return err

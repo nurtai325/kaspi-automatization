@@ -1,7 +1,10 @@
-.PHONY: run migrate
+.PHONY: run migrate build
 
 run:
-	go run cmd/app/main.go
+	./main
+
+build:
+	go build cmd/app/main.go
 
 migrate:
 	go run cmd/migrate/main.go

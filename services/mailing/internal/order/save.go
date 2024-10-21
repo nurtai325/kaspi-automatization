@@ -3,6 +3,7 @@ package order
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 
 	kma "github.com/abdymazhit/kaspi-merchant-api"
@@ -12,7 +13,7 @@ import (
 )
 
 var (
-	ErrIncorrectData = "request doesn't contain valid data"
+	ErrIncorrectData = errors.New("request doesn't contain valid data")
 )
 
 func saveOrders(
@@ -20,12 +21,14 @@ func saveOrders(
 	repo repositories.OrderRepository,
 	queue repositories.OrderQueueRepository,
 	api kma.API,
+	client models.Client,
 ) error {
 	count := len(resp.Data)
 	errs := make(chan error)
 
 	for i := 0; i < count; i++ {
-		attributes := resp.Data[i].Attributes
+		order := resp.Data[i]
+		attributes := order.Attributes
 
 		go save(models.Order{
 			Id:        attributes.Code,
@@ -33,7 +36,8 @@ func saveOrders(
 			Phone:     attributes.Customer.CellPhone,
 			Sum:       int64(attributes.TotalPrice),
 			Customer:  attributes.Customer.Name,
-		}, errs, repo, queue, api)
+			KaspiId:   order.Id,
+		}, errs, repo, queue, api, client)
 	}
 
 	for i := 0; i < count; i++ {
@@ -52,8 +56,13 @@ func save(
 	repo repositories.OrderRepository,
 	queue repositories.OrderQueueRepository,
 	api kma.API,
+	client models.Client,
 ) {
-	entryResp, err := api.GetOrderEntries(context.Background(), order.Id)
+	entryResp, err := api.GetOrderEntries(context.Background(), order.KaspiId)
+	if err != nil {
+		errs <- err
+		return
+	}
 	entries := make([]models.Entry, len(entryResp.Data))
 
 	for i, entry := range entryResp.Data {
@@ -76,6 +85,29 @@ func save(
 		}
 	}
 
+	phone := "7" + order.Phone
+	err = queue.Add(order.Id, models.QueuedOrder{
+		ClientId:    client.Id,
+		Token:       client.Token,
+		ProductCode: order.ProductCode,
+		ClientPhone: client.Phone,
+		OrderPhone:  phone,
+	})
+	if err != nil {
+		errs <- err
+		return
+	}
+
+	exists, err := repo.Exists(order.Id)
+	if err != nil {
+		errs <- err
+		return
+	}
+	if exists {
+		errs <- nil
+		return
+	}
+
 	entriesJson, err := json.Marshal(entries)
 	if err != nil {
 		errs <- err
@@ -89,17 +121,18 @@ func save(
 		return
 	}
 
-	messenger := messaging.New()
-	err = messenger.Message(order.Phone, "")
+	messenger := messaging.New(client.Id)
+	message := messaging.NewOrderMessage(order.Customer, order.Id, entries)
+	err = messenger.Message(models.Message{
+		Sender:   client.Phone,
+		Receiver: phone,
+		Text:     message,
+	})
 	if err != nil {
 		errs <- err
 		return
 	}
 
-	err = queue.Add(order.Id, order.ProductCode)
-	if err != nil {
-		errs <- err
-		return
-	}
+	errs <- nil
 	return
 }
