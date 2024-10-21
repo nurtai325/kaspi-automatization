@@ -17,6 +17,7 @@ type OrderQueueRepository interface {
 type ClientRepository interface {
 	Get() ([]models.Client, error)
 	Insert(models.Client) error
-	Extend(id int, months int) error
+	Extend(id int, duration int, unit string) error
 	ConnectWh(id int) error
+	Deactivate(id int) error
 }

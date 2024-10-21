@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	pageSize        int = 5
+	pageSize        int = 10
 	IntervalMinutes int = 1
 )
 

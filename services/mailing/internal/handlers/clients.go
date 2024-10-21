@@ -49,9 +49,9 @@ func HandleAddClient(w http.ResponseWriter, r *http.Request) {
 
 	repo := repositories.NewClient()
 	err = repo.Insert(models.Client{
-		Name:  name,
-		Phone: phone,
-		Token: token,
+		Name:      name,
+		Phone:     phone,
+		Token:     token,
 		Connected: false,
 	})
 	if err != nil {
@@ -72,7 +72,8 @@ func HandleExtendClientDate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rawId := r.Form.Get("id")
-	rawMonths := r.Form.Get("months")
+	rawDuration := r.Form.Get("duration")
+	unit := r.Form.Get("unit")
 
 	id, err := strconv.Atoi(rawId)
 	if err != nil {
@@ -81,7 +82,41 @@ func HandleExtendClientDate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	months, err := strconv.Atoi(rawMonths)
+	duration, err := strconv.Atoi(rawDuration)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if unit == "" || (unit != "months" && unit != "days") {
+		log.Println(err)
+		http.Error(w, "Ай немесе күнді таңдаңыз", http.StatusInternalServerError)
+		return
+	}
+
+	repo := repositories.NewClient()
+	err = repo.Extend(id, duration, unit)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func HandleDeactivate(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rawId := r.Form.Get("id")
+
+	id, err := strconv.Atoi(rawId)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -89,7 +124,7 @@ func HandleExtendClientDate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	repo := repositories.NewClient()
-	err = repo.Extend(id, months)
+	err = repo.Deactivate(id)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

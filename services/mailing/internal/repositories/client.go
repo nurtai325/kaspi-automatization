@@ -80,7 +80,7 @@ func (c *clientRepository) Insert(client models.Client) error {
 	return nil
 }
 
-func (c *clientRepository) Extend(id int, months int) error {
+func (c *clientRepository) Extend(id int, duration int, unit string) error {
 	r := c.conn.QueryRow("SELECT expires FROM clients WHERE id = $1 LIMIT 1;", id)
 	var expireDate time.Time
 	err := r.Scan(&expireDate)
@@ -88,10 +88,19 @@ func (c *clientRepository) Extend(id int, months int) error {
 		return err
 	}
 
-	if expireDate.After(time.Now()) {
-		expireDate = expireDate.AddDate(0, months, 0)
+	days := 0
+	months := 0
+
+	if unit == "days" {
+		days = duration
 	} else {
-		expireDate = time.Now().UTC().AddDate(0, months, 0)
+		months = duration
+	}
+
+	if expireDate.After(time.Now()) {
+		expireDate = expireDate.AddDate(0, months, days)
+	} else {
+		expireDate = time.Now().UTC().AddDate(0, months, days)
 	}
 
 	_, err = c.conn.Exec("UPDATE clients SET expires = $1 WHERE id = $2", expireDate, id)
@@ -110,5 +119,15 @@ func (c *clientRepository) ConnectWh(id int) error {
 	}
 
 	clientsCacheFresh.Store(false)
+	return nil
+}
+
+func (c *clientRepository) Deactivate(id int) error {
+	_, err := c.conn.Exec("UPDATE clients SET expires = $1 WHERE id = $2", time.Now().UTC(), id)
+	if err != nil {
+		return err
+	}
+	clientsCacheFresh.Store(false)
+
 	return nil
 }

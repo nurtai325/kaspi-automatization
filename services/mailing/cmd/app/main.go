@@ -45,14 +45,14 @@ func main() {
 	http.HandleFunc("/", handlers.HandleClientsView)
 	http.HandleFunc("/add/", handlers.HandleAddClientView)
 	http.HandleFunc("/add/client", handlers.HandleAddClient)
-	http.HandleFunc("/extend/client", handlers.HandleExtendClientDate)
+	http.HandleFunc("/deactivate", handlers.HandleDeactivate)
 	http.HandleFunc("/qrcode", handlers.HandleConnectQrcode)
 
 	fs := http.FileServer(http.Dir("./assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
 	log.Println("starting web server")
-	err = http.ListenAndServe(":80", nil)
+	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal(err)
 	}

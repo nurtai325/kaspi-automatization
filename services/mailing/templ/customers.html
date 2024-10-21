@@ -32,14 +32,25 @@
                     <td class="py-3 px-6">{{.Name}}</td>
                     <td class="py-3 px-6">{{.Phone}}</td>
                     <td class="py-3 px-6 expires">{{.Expires}}</td>
-                    <td class="py-3 px-6">
+                    <td class="py-3 px-6 flex">
                         <form action="/extend/client" method="POST" class="flex items-center">
-                            <input type="number" name="months" min="1" required
-                                class="border border-gray-300 rounded p-1 mr-2">
+                            <input type="number" name="duration" min="1" required
+                                class="border border-gray-300 rounded p-1 mr-2" placeholder="Cан жазыңыз">
+                            <select name="unit" required class="border border-gray-300 rounded p-1 mr-2">
+                                <option value="months">Ай</option>
+                                <option value="days">Күн</option>
+                            </select>
                             <input type="hidden" name="id" value="{{.Id}}">
                             <button type="submit"
                                 class="bg-blue-500 text-white font-bold py-1 px-3 rounded hover:bg-blue-600">
                                 Ұзарту
+                            </button>
+                        </form>
+                        <form action="/deactivate/" method="POST" class="flex items-center ml-2">
+                            <input type="hidden" name="id" value="{{.Id}}">
+                            <button type="submit"
+                                class="bg-red-500 text-white font-bold py-1 px-3 rounded hover:bg-red-600">
+                                Өшіру
                             </button>
                         </form>
                     </td>
