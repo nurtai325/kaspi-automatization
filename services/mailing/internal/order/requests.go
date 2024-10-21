@@ -8,7 +8,7 @@ import (
 
 const (
 	pageSize        int = 10
-	IntervalMinutes int = 1
+	IntervalMinutes int = 3
 )
 
 func GetOrderReq(state kma.OrdersState) kma.GetOrdersRequest {
