@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"database/sql"
-	"log"
 	"sync"
 	"sync/atomic"
 	"time"
