@@ -1,6 +1,7 @@
 logs
 *.log
 *.pem
+*.zip
 storage
 main
 build

@@ -13,7 +13,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	conf, err := config.New()
+	conf := config.New()
 
 	closeDB, err := db.Connect(conf)
 	defer closeDB()
