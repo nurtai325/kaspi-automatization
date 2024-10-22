@@ -72,8 +72,6 @@ func activeClients(clients []models.Client, length int) []models.Client {
 		if client.Expires.Valid && now.Before(client.Expires.Time) && client.Connected {
 			active = append(active, client)
 		} else {
-			log.Println("client not active")
-			log.Println(client)
 		}
 	}
 	return active
