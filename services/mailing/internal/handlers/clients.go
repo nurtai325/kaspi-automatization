@@ -107,6 +107,7 @@ func HandleExtendClientDate(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleDeactivate(w http.ResponseWriter, r *http.Request) {
+	log.Println("yes")
 	err := r.ParseForm()
 	if err != nil {
 		log.Println(err)

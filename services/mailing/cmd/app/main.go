@@ -46,7 +46,7 @@ func main() {
 	http.HandleFunc("/add/", handlers.HandleAddClientView)
 	http.HandleFunc("/add/client", handlers.HandleAddClient)
 	http.HandleFunc("/extend/client", handlers.HandleExtendClientDate)
-	http.HandleFunc("/deactivate", handlers.HandleDeactivate)
+	http.HandleFunc("/deactivate/", handlers.HandleDeactivate)
 	http.HandleFunc("/qrcode", handlers.HandleConnectQrcode)
 
 	fs := http.FileServer(http.Dir("./assets"))
