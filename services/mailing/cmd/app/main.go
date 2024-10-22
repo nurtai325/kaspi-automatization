@@ -45,6 +45,7 @@ func main() {
 	http.HandleFunc("/", handlers.HandleClientsView)
 	http.HandleFunc("/add/", handlers.HandleAddClientView)
 	http.HandleFunc("/add/client", handlers.HandleAddClient)
+	http.HandleFunc("/extend/client", handlers.HandleExtendClientDate)
 	http.HandleFunc("/deactivate", handlers.HandleDeactivate)
 	http.HandleFunc("/qrcode", handlers.HandleConnectQrcode)
 
