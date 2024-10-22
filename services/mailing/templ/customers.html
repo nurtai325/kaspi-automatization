@@ -54,16 +54,18 @@
                             </button>
                         </form>
                     </td>
-                    <td class="py-3 px-6 flex">
-                        <form action="/qrcode" method="POST" class="flex items-center">
-                            <input type="hidden" name="phone" value="{{.Phone}}">
-                            <input type="hidden" name="id" value="{{.Id}}">
-                            <button type="submit"
-                                class="bg-blue-500 text-white font-bold py-1 px-3 rounded hover:bg-blue-600">
-                                Қосылу
-                            </button>
-                        </form>
-                        <p class="ml-2 {{if .Connected}} print hidden {{else}} print {{end}}">Қосылған</p>
+                    <td class="py-3 px-6">
+                        <div class="flex">
+                            <form action="/qrcode" method="POST" class="flex items-center">
+                                <input type="hidden" name="phone" value="{{.Phone}}">
+                                <input type="hidden" name="id" value="{{.Id}}">
+                                <button type="submit"
+                                    class="bg-blue-500 text-white font-bold py-1 px-3 rounded hover:bg-blue-600">
+                                    Қосылу
+                                </button>
+                            </form>
+                            <p class="ml-2 {{if .Connected}} print {{else}} print hidden {{end}}">Қосылған</p>
+                        </div>
                     </td>
                 </tr>
                 {{end}}
