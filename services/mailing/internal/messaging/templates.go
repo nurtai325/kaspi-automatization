@@ -2,6 +2,7 @@ package messaging
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/nurtai325/kaspi/mailing/internal/models"
 )
@@ -11,7 +12,6 @@ const (
 )
 
 func NewOrderMessage(name, orderCode, shop, phone string, entries []models.Entry) string {
-	parsedEntries := parseEntries(entries)
 	text := `Қайырлы күн, %s!
 %s магазиніне тапсырыс бергеніңіз үшін рақмет
 Сіздің тапсырысыңыз:   %s.
@@ -39,12 +39,12 @@ func NewOrderMessage(name, orderCode, shop, phone string, entries []models.Entry
 		text,
 		name,
 		shop,
-		parsedEntries,
+		parseEntries(entries, true),
 		orderCode,
 		"+"+phone,
 		name,
 		shop,
-		parsedEntries,
+		parseEntries(entries, false),
 		orderCode,
 		"+"+phone,
 	)
@@ -72,4 +72,33 @@ func CompletedOrderMessage(name, orderCode, productCode, shop string) string {
 	return message
 }
 
-func parseEntries(entries []models.Entry) string { return "" }
+func parseEntries(entries []models.Entry, kz bool) string {
+	parsed := strings.Builder{}
+	length := len(entries)
+
+	for i, entry := range entries {
+		parsedEntry := ""
+		if kz {
+			parsedEntry = fmt.Sprintf(
+				"%s, %d дана, бағасы: %d",
+				entry.ProductName,
+				entry.Quantity,
+				entry.Price,
+			)
+		} else {
+			parsedEntry = fmt.Sprintf(
+				"%s, количество: %d, цена: %d",
+				entry.ProductName,
+				entry.Quantity,
+				entry.Price,
+			)
+		}
+		parsed.WriteString(parsedEntry)
+		if i+1 != length {
+			parsed.WriteString(",")
+		}
+	}
+	parsed.WriteString(".")
+
+	return parsed.String()
+}

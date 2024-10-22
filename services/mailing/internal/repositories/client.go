@@ -124,7 +124,6 @@ func (c *clientRepository) ConnectWh(id int) error {
 }
 
 func (c *clientRepository) Deactivate(id int) error {
-	log.Println("yes", id)
 	_, err := c.conn.Exec("UPDATE clients SET expires = $1 WHERE id = $2", time.Now().UTC(), id)
 	if err != nil {
 		return err
