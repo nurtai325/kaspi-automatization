@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"log"
 	"time"
 
 	kma "github.com/abdymazhit/kaspi-merchant-api"
