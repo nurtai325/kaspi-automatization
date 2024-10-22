@@ -54,7 +54,7 @@
                             </button>
                         </form>
                     </td>
-                    <td class="py-3 px-6 {{if .Connected}} print hidden {{else}} print {{end}}">
+                    <td class="py-3 px-6 flex">
                         <form action="/qrcode" method="POST" class="flex items-center">
                             <input type="hidden" name="phone" value="{{.Phone}}">
                             <input type="hidden" name="id" value="{{.Id}}">
@@ -63,6 +63,7 @@
                                 Қосылу
                             </button>
                         </form>
+                        <p class="ml-2 {{if .Connected}} print hidden {{else}} print {{end}}">Қосылған</p>
                     </td>
                 </tr>
                 {{end}}
