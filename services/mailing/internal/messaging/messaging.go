@@ -8,6 +8,6 @@ type Messenger interface {
 	Message(message models.Message) error
 }
 
-func New(clientId uint) Messenger {
+func New() Messenger {
 	return &whatsapp{}
 }

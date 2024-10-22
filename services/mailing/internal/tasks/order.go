@@ -61,7 +61,7 @@ func CompletedOrders() *schedule.Task {
 func completedOrders() error {
 	repo := repositories.Order()
 	queue := repositories.OrderQueue()
-	return order.CheckCompleted(repo, queue, models.Client{})
+	return order.CheckCompleted(repo, queue)
 }
 
 func activeClients(clients []models.Client, length int) []models.Client {

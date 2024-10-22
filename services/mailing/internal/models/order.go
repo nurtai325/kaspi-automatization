@@ -26,4 +26,5 @@ type QueuedOrder struct {
 	ProductCode string `json:"product_code"`
 	ClientPhone string `json:"client_phone"`
 	OrderPhone  string `json:"order_phone"`
+	Shop  string `json:"shop"`
 }

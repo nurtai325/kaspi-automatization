@@ -92,6 +92,7 @@ func save(
 		ProductCode: order.ProductCode,
 		ClientPhone: client.Phone,
 		OrderPhone:  phone,
+		Shop:        client.Name,
 	})
 	if err != nil {
 		errs <- err
@@ -121,8 +122,8 @@ func save(
 		return
 	}
 
-	messenger := messaging.New(client.Id)
-	message := messaging.NewOrderMessage(order.Customer, order.Id, entries)
+	messenger := messaging.New()
+	message := messaging.NewOrderMessage(order.Customer, order.Id, client.Name, client.Phone, entries)
 	err = messenger.Message(models.Message{
 		Sender:   client.Phone,
 		Receiver: phone,

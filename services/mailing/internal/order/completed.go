@@ -17,22 +17,19 @@ var (
 func CheckCompleted(
 	repo repositories.OrderRepository,
 	queue repositories.OrderQueueRepository,
-	client models.Client,
 ) error {
 	return queue.Range(func(id string, order models.QueuedOrder) error {
 		api := kma.New(order.Token)
-		return completeOrder(id, order.ProductCode, order.OrderPhone, repo, queue, api, client)
+		return completeOrder(id, order, repo, queue, api)
 	})
 }
 
 func completeOrder(
 	id string,
-	productCode string,
-	phone string,
+	queuedOrder models.QueuedOrder,
 	repo repositories.OrderRepository,
 	queue repositories.OrderQueueRepository,
 	api kma.API,
-	client models.Client,
 ) error {
 	orderResp, err := api.GetOrderByCode(context.Background(), id)
 	if err != nil {
@@ -59,16 +56,17 @@ func completeOrder(
 		return err
 	}
 
-	messenger := messaging.New(client.Id)
+	messenger := messaging.New()
 	message := messaging.CompletedOrderMessage(
 		order.Attributes.Customer.Name,
 		order.Attributes.Code,
-		productCode,
+		queuedOrder.ProductCode,
+		queuedOrder.Shop,
 	)
 
 	err = messenger.Message(models.Message{
-		Sender:   client.Phone,
-		Receiver: phone,
+		Sender:   queuedOrder.ClientPhone,
+		Receiver: queuedOrder.OrderPhone,
 		Text:     message,
 	})
 	if err != nil {
